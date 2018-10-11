@@ -290,8 +290,12 @@ MonoBehaviour:
       type: 2}
     leftLevelEdge: {fileID: 4262513877048828, guid: e5640f6b79bf57d4a9602b5eda84acce,
       type: 2}
-    platformMaxXOffset: 3
+    platformMinXOffset: 1.2
+    platformMaxXOffset: 5
+    platformMinYOffset: 1
     platformMaxYOffset: 3
+    platformSpawnRate: 70
+    platformAdaptionRate: 30
   levelWidthScale: 8
   levelHeightScale: 6
 --- !u!1001 &1542606735

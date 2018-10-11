@@ -12,8 +12,12 @@ public class LevelBuilder
     [SerializeField] private Transform rightLevelEdge;
     [SerializeField] private Transform leftLevelEdge;
 
-    [SerializeField] private float platformMaxXOffset = 3f;
+    [SerializeField] private float platformMinXOffset = 1f;
+    [SerializeField] private float platformMaxXOffset = 5f;
+    [SerializeField] private float platformMinYOffset = 1f;
     [SerializeField] private float platformMaxYOffset = 3f;
+    [SerializeField] private int platformSpawnRate = 70;
+    [SerializeField] private int platformAdaptionRate = 30;
 
     private float groundWidth;
     private float groundHeight;
@@ -31,12 +35,12 @@ public class LevelBuilder
         // Creating ground layer
         Transform groundInstance = GameObject.Instantiate(groundPrefab, new Vector3(0, 0), groundPrefab.rotation);
         groundInstance.GetComponent<SpriteRenderer>().size = new Vector2(levelWidth, groundHeight);
-        groundInstance.GetComponent<EdgeCollider2D>().points = new Vector2[] { new Vector2(levelWidth / 2, 0f), new Vector2(-1 * levelWidth / 2, 0f)};
+        groundInstance.GetComponent<BoxCollider2D>().size = new Vector2(levelWidth, groundHeight);
 
         // Creating roof layer
         Transform ceilingInstance = GameObject.Instantiate(ceilingPrefab, new Vector3(0, levelHeight + groundHeight), ceilingPrefab.rotation);
         ceilingInstance.GetComponent<SpriteRenderer>().size = new Vector2(levelWidth, groundHeight);
-        ceilingInstance.GetComponent<EdgeCollider2D>().points = new Vector2[] { new Vector2(levelWidth / 2, 0f), new Vector2(-1 * levelWidth / 2, 0f) };
+        ceilingInstance.GetComponent<BoxCollider2D>().size = new Vector2(levelWidth, groundHeight);
 
         // Creating level edges
         CreateEdge(rightLevelEdge, levelWidth, levelHeight, 1);
@@ -72,11 +76,39 @@ public class LevelBuilder
 
         for(int y = 0; y < yPlatformCount; y++)
         {
-            float yPos = platformMaxYOffset + platformHeight * y;
-            for(int x = 0; x < xPlatformCount; x++)
+            float yPos;
+
+            for (int x = 0; x < xPlatformCount; x++)
             {
-                float xPos = -1 * levelWidth / 2 + (UnityEngine.Random.Range(0f, platformMaxXOffset) + platformWidth * x);
-                GameObject.Instantiate(platformPrefab, new Vector3(xPos, yPos), platformPrefab.rotation, platformContainer);
+                int chance = Mathf.CeilToInt(UnityEngine.Random.Range(0f, 100f));
+
+                if (chance < platformSpawnRate)
+                {
+                    yPos = platformHeight * y;
+                    if (y == 0)
+                        yPos += platformMaxYOffset;
+                    else
+                        yPos += UnityEngine.Random.Range(platformMinYOffset, platformMaxYOffset);
+
+                    float xOffset = UnityEngine.Random.Range(platformMinXOffset, platformMaxXOffset);
+                    float xPos = -1 * levelWidth / 2 + (xOffset + platformWidth * x);
+                    Transform platformInstance =  GameObject.Instantiate(platformPrefab, new Vector3(xPos, yPos), platformPrefab.rotation, platformContainer);
+
+                    chance = Mathf.CeilToInt(UnityEngine.Random.Range(0f, 100f));
+                    if(chance < platformAdaptionRate)
+                    {
+                        SpriteRenderer platformSprite = platformInstance.GetComponent<SpriteRenderer>();
+                        platformSprite.drawMode = SpriteDrawMode.Tiled;
+                        platformSprite.tileMode = SpriteTileMode.Adaptive;
+                        platformSprite.size = new Vector2(platformSprite.size.x + xOffset, platformSprite.size.y);
+
+                        Vector2[] platformColliderPoints = platformInstance.GetComponent<EdgeCollider2D>().points;
+                        platformColliderPoints[0] = new Vector2(platformColliderPoints[0].x - xOffset / 2, platformColliderPoints[0].y);
+                        platformColliderPoints[1] = new Vector2(platformColliderPoints[1].x + xOffset / 2, platformColliderPoints[1].y);
+
+                        platformInstance.GetComponent<EdgeCollider2D>().points = platformColliderPoints;
+                    }
+                }
             }
         }
     }
