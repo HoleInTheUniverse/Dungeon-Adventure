@@ -22,6 +22,8 @@ public class LevelBuilder
     private float groundWidth;
     private float groundHeight;
 
+    public Boundaries LevelBoundaries;
+
     // Main method for level building. Controls the process of creating ground layers, platforms, exit to the next level, spawning enemies, etc.
     public void InstantiateLevel(int levelWidth, int levelHeight)
     {        
@@ -36,11 +38,13 @@ public class LevelBuilder
         Transform groundInstance = GameObject.Instantiate(groundPrefab, new Vector3(0, 0), groundPrefab.rotation);
         groundInstance.GetComponent<SpriteRenderer>().size = new Vector2(levelWidth, groundHeight);
         groundInstance.GetComponent<BoxCollider2D>().size = new Vector2(levelWidth, groundHeight);
+        LevelBoundaries.BottomBoundary = groundInstance.position.y - groundHeight / 2;
 
         // Creating roof layer
         Transform ceilingInstance = GameObject.Instantiate(ceilingPrefab, new Vector3(0, levelHeight + groundHeight), ceilingPrefab.rotation);
         ceilingInstance.GetComponent<SpriteRenderer>().size = new Vector2(levelWidth, groundHeight);
         ceilingInstance.GetComponent<BoxCollider2D>().size = new Vector2(levelWidth, groundHeight);
+        LevelBoundaries.TopBoundary = ceilingInstance.position.y + groundHeight / 2;
 
         // Creating level edges
         CreateEdge(rightLevelEdge, levelWidth, levelHeight, 1);
@@ -64,6 +68,11 @@ public class LevelBuilder
             (levelEdgeInstance.GetComponent<SpriteRenderer>().size.y + levelEdgeFloorCorner.GetComponent<SpriteRenderer>().size.y));
         levelEdgeCeilingCorner.position = new Vector3(levelEdgeInstance.position.x, levelEdgeInstance.position.y + 0.5f *
             (levelEdgeInstance.GetComponent<SpriteRenderer>().size.y + levelEdgeFloorCorner.GetComponent<SpriteRenderer>().size.y));
+
+        if (sideOffset < 0)
+            LevelBoundaries.LeftBoundary = levelEdgeInstance.position.x - groundWidth / 2;
+        else
+            LevelBoundaries.RightBoundary = levelEdgeInstance.position.x + groundWidth / 2;
     }
 
     private void CreatePlatforms(int levelWidth, int levelHeight)
@@ -112,4 +121,12 @@ public class LevelBuilder
             }
         }
     }
+}
+
+public struct Boundaries
+{
+    public float TopBoundary;
+    public float BottomBoundary;
+    public float LeftBoundary;
+    public float RightBoundary;
 }

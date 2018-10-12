@@ -9,6 +9,8 @@ public class GameHandler : MonoBehaviour
     private static int levelWidth;
     private static int levelHeight;
 
+    public LevelBuilder Level { get { return level; } }
+
     private void Start()
     {
         levelWidth = (Screen.currentResolution.width / 100) * levelWidthScale;
