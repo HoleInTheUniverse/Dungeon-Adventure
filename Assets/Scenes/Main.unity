@@ -292,7 +292,7 @@ MonoBehaviour:
       type: 2}
     platformMinXOffset: 1.2
     platformMaxXOffset: 5
-    platformMinYOffset: 1
+    platformMinYOffset: 1.5
     platformMaxYOffset: 3
     platformSpawnRate: 70
     platformAdaptionRate: 30
